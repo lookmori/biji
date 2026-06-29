@@ -1,26 +1,478 @@
 @import "tailwindcss";
 
+/* ============================================================
+   BIJI 笔记工作台 — 设计系统
+   严格对齐数屿数学 UI 设计规范 + 本站扩展
+   ============================================================ */
+
+/* ---- CSS 自定义属性（原始色值，供非 Tailwind 场景使用） ---- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 核心色板 */
+  --color-ink: #17231f;
+  --color-muted: #65726d;
+  --color-paper: #f7f8f3;
+  --color-panel: #ffffff;
+  --color-line: #dce3dc;
+  --color-grid: #d8dfd8;
+  --color-green: #1f6f54;
+  --color-green-dark: #173e31;
+  --color-green-soft: #e4f0e9;
+  --color-red: #b94b3f;
+  --color-yellow: #f0c96b;
+
+  /* 扩展色 */
+  --color-canvas-bg: #eef2ed;
+  --color-input-bg: #fafbf8;
+  --color-note-bg: #fbfcf9;
+  --color-def-bg: #f5f8f4;
+  --color-tip-bg: #fff6df;
+  --color-tip-label: #fff0cb;
+  --color-sidebar-tip: #eaf2ec;
+  --color-dashed-border: #5f766b;
+
+  /* 首页专用色 */
+  --color-hero-bg: #0f1d18;
+  --color-hero-card-hover: #1a2f27;
+  --color-feature-bg: #f0f4ef;
+
+  /* 暗色模式色板 */
+  --color-ink-dark: #e8ece9;
+  --color-muted-dark: #8a9993;
+  --color-paper-dark: #1a1f1c;
+  --color-panel-dark: #242a27;
+  --color-line-dark: #333b37;
+  --color-grid-dark: #2d3531;
+  --color-green-dark-mode: #3d9e7a;
+  --color-green-dark-bg: #1f5c48;
+  --color-green-soft-dark: #1e2f28;
+  --color-red-dark: #d4655a;
+  --color-yellow-dark: #d4a832;
+
+  /* 排版 */
+  --font-ui: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  --font-display: "Songti SC", "STSong", "SimSun", serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
+  --font-canvas: "Noto Serif SC", "Songti SC", Georgia, serif;
+
+  /* 间距基准 */
+  --spacing-xs: 4px;
+  --spacing-s: 8px;
+  --spacing-m: 12px;
+  --spacing-l: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 40px;
+
+  /* 布局常量 */
+  --header-height: 72px;
+  --sidebar-width: 232px;
+  --page-max-width: 1500px;
+
+  /* 阴影（低透深绿，无纯黑） */
+  --shadow-s: 0 1px 2px rgba(23, 62, 49, 0.08);
+  --shadow-m: 0 7px 18px rgba(23, 62, 49, 0.16);
+  --shadow-l: 0 14px 40px rgba(37, 56, 47, 0.06);
+  --shadow-xl: 0 18px 55px rgba(31, 49, 40, 0.09);
+
+  /* 动效 */
+  --ease-rise: ease;
+  --duration-rise: 460ms;
 }
 
+/* ---- Tailwind CSS v4 @theme ---- */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* 核心色 */
+  --color-ink: #17231f;
+  --color-muted: #65726d;
+  --color-paper: #f7f8f3;
+  --color-panel: #ffffff;
+  --color-line: #dce3dc;
+  --color-grid: #d8dfd8;
+  --color-green: #1f6f54;
+  --color-green-dark: #173e31;
+  --color-green-soft: #e4f0e9;
+  --color-red: #b94b3f;
+  --color-yellow: #f0c96b;
+
+  /* 扩展色 */
+  --color-canvas-bg: #eef2ed;
+  --color-input-bg: #fafbf8;
+  --color-note-bg: #fbfcf9;
+  --color-def-bg: #f5f8f4;
+  --color-tip-bg: #fff6df;
+  --color-tip-label: #fff0cb;
+  --color-sidebar-tip: #eaf2ec;
+  --color-dashed-border: #5f766b;
+
+  /* 首页专用 */
+  --color-hero-bg: #0f1d18;
+  --color-hero-card-hover: #1a2f27;
+  --color-feature-bg: #f0f4ef;
+
+  /* 暗色模式 */
+  --color-ink-dark: #e8ece9;
+  --color-muted-dark: #8a9993;
+  --color-paper-dark: #1a1f1c;
+  --color-panel-dark: #242a27;
+  --color-line-dark: #333b37;
+  --color-grid-dark: #2d3531;
+  --color-green-dark-mode: #3d9e7a;
+  --color-green-dark-bg: #1f5c48;
+  --color-green-soft-dark: #1e2f28;
+  --color-red-dark: #d4655a;
+  --color-yellow-dark: #d4a832;
+
+  /* 字体 */
+  --font-sans: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  --font-display: "Songti SC", "STSong", "SimSun", serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
+
+  /* 阴影 */
+  --shadow-s: 0 1px 2px rgba(23, 62, 49, 0.08);
+  --shadow-m: 0 7px 18px rgba(23, 62, 49, 0.16);
+  --shadow-l: 0 14px 40px rgba(37, 56, 47, 0.06);
+  --shadow-xl: 0 18px 55px rgba(31, 49, 40, 0.09);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---- 全局基础样式 ---- */
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- 动效 ---- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-rise {
+  animation: rise var(--duration-rise) var(--ease-rise);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- 玻璃效果 ---- */
+.glass-header {
+  background: rgba(247, 248, 243, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-sidebar {
+  background: rgba(250, 251, 247, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ---- 打印 ---- */
+@media print {
+  header, aside, nav, .no-print,
+  button:not(.keep-print),
+  [class*="fixed"] {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: #000 !important;
+    font-size: 12pt;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  .tiptap {
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  a { color: #000 !important; text-decoration: underline; }
+  img { max-width: 100% !important; page-break-inside: avoid; }
+  pre, table, blockquote { page-break-inside: avoid; }
+  @page { margin: 12mm; size: A4; }
+}
+
+/* ---- 自定义滚动条 ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* ---- 选中色 ---- */
+::selection {
+  background: var(--color-green-soft);
+  color: var(--color-ink);
+}
+
+/* ---- Canvas 触摸适配 ---- */
+.canvas-touch {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- Tiptap 编辑器样式 ---- */
+.tiptap.ProseMirror {
+  outline: none;
+  min-height: 50vh;
+}
+
+.tiptap.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgba(101, 114, 109, 0.3);
+  pointer-events: none;
+  height: 0;
+}
+
+/* 标题 */
+.tiptap h1 { font-size: 1.75rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.75rem; font-family: "Songti SC","STSong","SimSun",serif; color: var(--color-ink); }
+.tiptap h2 { font-size: 1.4rem; font-weight: 700; margin-top: 1.75rem; margin-bottom: 0.5rem; font-family: "Songti SC","STSong","SimSun",serif; color: var(--color-ink); }
+.tiptap h3 { font-size: 1.15rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; font-family: "Songti SC","STSong","SimSun",serif; color: var(--color-ink); }
+
+/* 代码块 */
+.tiptap pre {
+  background: var(--color-ink);
+  color: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  font-family: "SFMono-Regular",Consolas,monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.tiptap pre code { background: none; color: inherit; font-size: inherit; padding: 0; }
+.tiptap code { background: var(--color-green-soft); color: var(--color-green-dark); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.875em; font-family: "SFMono-Regular",Consolas,monospace; }
+
+/* 引用 */
+.tiptap blockquote {
+  border-left: 4px solid var(--color-green);
+  padding: 0.5rem 0 0.5rem 1rem;
+  margin: 0.75rem 0;
+  color: var(--color-muted);
+  font-style: italic;
+  background: rgba(228,240,233,0.35);
+  border-radius: 0 8px 8px 0;
+}
+
+/* 列表 */
+/* ---- 列表样式 ---- */
+.tiptap ul,
+.tiptap ol {
+  margin: 0.5rem 0;
+  padding-left: 1.75rem;
+}
+.tiptap ul {
+  list-style-type: disc;
+}
+.tiptap ul ul {
+  list-style-type: circle;
+}
+.tiptap ul ul ul {
+  list-style-type: square;
+}
+.tiptap ol {
+  list-style-type: decimal;
+}
+.tiptap ol ol {
+  list-style-type: lower-alpha;
+}
+.tiptap ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.tiptap li {
+  margin: 0.35rem 0;
+  padding-left: 0.25rem;
+}
+.tiptap li::marker {
+  color: var(--color-green);
+  font-weight: 600;
+}
+.tiptap ol > li::marker {
+  color: var(--color-ink);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.9em;
+  font-weight: 700;
+}
+
+/* 嵌套列表对齐 */
+.tiptap li > ul,
+.tiptap li > ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* 任务列表 */
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-left: 0;
+}
+.tiptap ul[data-type="taskList"] li::marker {
+  content: none;
+}
+.tiptap ul[data-type="taskList"] li label {
+  margin-top: 0.15rem;
+  accent-color: var(--color-green);
+}
+
+/* 表格 */
+.tiptap table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tiptap th, .tiptap td {
+  border: 1px solid var(--color-line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+.tiptap th { background: var(--color-def-bg); font-weight: 700; }
+
+/* 图片 */
+.tiptap img { max-width: 100%; border-radius: 8px; margin: 0.75rem 0; }
+
+/* 链接 */
+.tiptap a { color: var(--color-green); text-decoration: underline; text-underline-offset: 2px; }
+.tiptap a:hover { color: var(--color-green-dark); }
+
+/* 分隔线 */
+.tiptap hr { border: none; border-top: 1px dashed var(--color-line); margin: 1.5rem 0; }
+
+/* Canvas 图形嵌入卡片 */
+.canvas-figure,
+.canvas-figure-placeholder {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem 0;
+  max-width: 600px;
+}
+.canvas-figure-img {
+  width: 100%;
+  display: block;
+}
+.canvas-figure-caption {
+  padding: 0.5rem 1rem;
+  background: var(--color-input-bg);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.canvas-figure-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  background: var(--color-canvas-bg);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.canvas-figure-icon { font-size: 1.5rem; }
+
+/* 视频嵌入卡片 */
+.video-embed {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem 0;
+  max-width: 600px;
+}
+.video-embed-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  background: var(--color-ink);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.video-embed-icon { font-size: 1.5rem; }
+
+/* 音频嵌入卡片 */
+.audio-embed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  background: var(--color-input-bg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.audio-embed-icon { font-size: 1.25rem; }
+
+/* 视频播放器 */
+.video-embed-player {
+  border-radius: 8px 8px 0 0;
+  background: var(--color-ink);
+  outline: none;
+}
+.video-embed-player:focus-visible {
+  outline: 3px solid rgba(31,111,84,.24);
+  outline-offset: 2px;
+}
+
+/* 音频播放器 */
+.audio-embed-player {
+  height: 40px;
+  border-radius: 6px;
+  accent-color: var(--color-green);
+}
+.audio-embed-title {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
 }
