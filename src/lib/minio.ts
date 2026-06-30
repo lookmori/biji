@@ -48,17 +48,34 @@ export async function uploadToMinio(
     "Content-Disposition": `attachment; filename*=UTF-8''${encodedFilename}`,
   });
 
-  // 公开 URL
-  return `http://www.minio.lookmori.cn:9000/${BUCKET}/${objectName}`;
+  // 代理 URL（相对路径，适配任何域名和 HTTPS）
+  return `/api/files/${BUCKET}/${objectName}`;
 }
 
-/** 从 MinIO 删除文件 */
+/** 从 MinIO 删除文件（兼容新旧 URL 格式） */
 export async function deleteFromMinio(url: string): Promise<boolean> {
   try {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split("/");
-    // URL-decode：中文文件名被 encodeURI → 需解码才能匹配 MinIO 中的实际文件名
-    const objectName = decodeURIComponent(pathParts.slice(2).join("/"));
+    let objectName: string;
+
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      // 旧格式：http(s)://domain:port/biji-uploads/xxx
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split("/").filter(Boolean);
+      // pathParts: ["biji-uploads", "timestamp-filename"]
+      objectName = decodeURIComponent(pathParts.slice(1).join("/"));
+    } else if (url.startsWith("/api/files/")) {
+      // 新代理格式：/api/files/biji-uploads/xxx
+      const afterPrefix = url.slice("/api/files/".length);
+      const segs = afterPrefix.split("/");
+      objectName = decodeURIComponent(segs.slice(1).join("/"));
+    } else if (url.startsWith("/uploads/")) {
+      // 本地存储兜底（不归 MinIO 管，不报错）
+      return false;
+    } else {
+      console.warn("[minio] Unrecognized URL format:", url);
+      return false;
+    }
+
     if (!objectName) return false;
 
     await minioClient.removeObject(BUCKET, objectName);

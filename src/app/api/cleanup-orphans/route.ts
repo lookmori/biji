@@ -44,21 +44,41 @@ export async function GET() {
     }, { status: 500 });
   }
 
-  // 4. 找出孤儿文件
+  // 4. 从所有 URL 提取 objectName，按名称比较（兼容多种 URL 格式）
+  function extractObjectName(url: string): string | null {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      try {
+        const parts = new URL(url).pathname.split("/").filter(Boolean);
+        return decodeURIComponent(parts.slice(1).join("/"));
+      } catch { return null; }
+    }
+    if (url.includes("biji-uploads/")) {
+      const idx = url.indexOf("biji-uploads/") + "biji-uploads/".length;
+      return decodeURIComponent(url.slice(idx));
+    }
+    return null;
+  }
+
+  const referencedObjects = new Set<string>();
+  for (const url of contentUrls) {
+    const name = extractObjectName(url);
+    if (name) referencedObjects.add(name);
+  }
+
+  // 5. 找出孤儿文件（按 objectName 比较）
   const orphans: string[] = [];
   for (const objName of objects) {
-    const url = `https://117.72.47.130:9000/${BUCKET}/${objName}`;
-    if (!contentUrls.has(url)) {
+    if (!referencedObjects.has(objName)) {
       orphans.push(objName);
     }
   }
 
-  // 5. 删除孤儿文件
+  // 6. 删除孤儿文件
   let deleted = 0;
   const failed: string[] = [];
   for (const objName of orphans) {
-    const url = `https://117.72.47.130:9000/${BUCKET}/${objName}`;
-    const ok = await deleteFromMinio(url);
+    const delUrl = `/api/files/${BUCKET}/${objName}`;
+    const ok = await deleteFromMinio(delUrl);
     if (ok) deleted++;
     else failed.push(objName);
   }

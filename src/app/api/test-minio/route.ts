@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { minioClient, uploadToMinio } from "@/lib/minio";
-import { Client } from "minio";
 
 export async function GET() {
   const results: string[] = [];
@@ -24,19 +23,16 @@ export async function GET() {
     errors.push(`❌ 上传失败: ${err.message}`);
   }
 
-  // 3. 测试文件是否可访问
+  // 3. 测试文件是否可读取
   try {
     const testContent2 = Buffer.from("可访问性测试");
     const url2 = await uploadToMinio(testContent2, "access-test.txt", "text/plain");
-    const response = await fetch(url2);
-    if (response.ok) {
-      const text = await response.text();
-      results.push(`✅ 文件可公开访问！读取内容: "${text}"`);
-    } else {
-      errors.push(`⚠️ 文件上传成功但无法公开访问 (HTTP ${response.status})，请检查 Bucket 策略`);
-    }
+    // 从代理 URL 提取 objectName，用 statObject 验证
+    const objectName = url2.replace("/api/files/biji-uploads/", "");
+    const stat = await minioClient.statObject("biji-uploads", objectName);
+    results.push(`✅ 文件可读取！大小: ${stat.size} bytes, 代理 URL: ${url2}`);
   } catch (err: any) {
-    errors.push(`⚠️ 公开访问测试失败: ${err.message} (可能是自签名证书问题，浏览器访问时需手动信任)`);
+    errors.push(`⚠️ 可访问性测试失败: ${err.message}`);
   }
 
   return NextResponse.json({ results, errors, ok: errors.length === 0 });

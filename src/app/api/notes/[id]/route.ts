@@ -5,6 +5,16 @@ import { deleteFromMinio } from "@/lib/minio";
 import { unlink } from "fs/promises";
 import path from "path";
 
+/** 将旧 MinIO 直接 URL 替换为代理 URL */
+function rewriteMediaUrls(html: string): string {
+  if (!html) return html;
+  // 匹配 http(s)://domain:port/biji-uploads/xxx
+  return html.replace(
+    /https?:\/\/(?:www\.minio\.lookmori\.cn|117\.72\.47\.130):9000\/biji-uploads\/([^"'\s>]+)/gi,
+    "/api/files/biji-uploads/$1"
+  );
+}
+
 /** 从 HTML 内容中提取所有媒体 URL */
 function extractMediaUrls(html: string): string[] {
   const urls: string[] = [];
@@ -41,7 +51,10 @@ export async function GET(
   `;
 
   return NextResponse.json({
-    note: result[0],
+    note: {
+      ...result[0],
+      content: rewriteMediaUrls(result[0].content || ""),
+    },
     canvasRecords: cr,
   });
 }
