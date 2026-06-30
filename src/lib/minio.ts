@@ -1,15 +1,12 @@
 import { Client } from "minio";
 
-// 自签名证书兼容
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
 const BUCKET = "biji-uploads";
 
 // MinIO 客户端（S3 兼容）
 export const minioClient = new Client({
-  endPoint: "117.72.47.130",
+  endPoint: "www.minio.lookmori.cn",
   port: 9000,        // S3 API 端口（9001 是 Console 端口）
-  useSSL: true,
+  useSSL: false,
   accessKey: "minioadmin",
   secretKey: "minioadmin",
 });
@@ -52,7 +49,7 @@ export async function uploadToMinio(
   });
 
   // 公开 URL
-  return `https://117.72.47.130:9000/${BUCKET}/${objectName}`;
+  return `http://www.minio.lookmori.cn:9000/${BUCKET}/${objectName}`;
 }
 
 /** 从 MinIO 删除文件 */
